@@ -1,0 +1,4 @@
+sound: "/audio/soundEffects/ding.wav"
+looping: 0
+group: "ding"
+gain: 0.35

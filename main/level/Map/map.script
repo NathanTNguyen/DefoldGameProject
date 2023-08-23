@@ -1,0 +1,90 @@
+function init(self)
+	math.randomseed(os.time())
+	slimeCount = 0
+	slimeBossCount = 0
+	goblinMeleeCount = 0
+	goblinMeleeBossCount = 0
+	trollCount = 0
+	trollBossCount = 0
+	slimeBossEncounter = false
+	goblinMeleeBossEncounter = false
+	goblinMeleeBossRoom = false
+	trollBossRoom = false
+	self.scoreTimestamp = 0
+	timeScore = 0
+end
+
+function final(self)
+	
+end
+
+function update(self, dt)
+	
+end
+
+function on_message(self, message_id, message, sender)
+	--Calculates end score player achieved and rewards player for a faster game clear
+	if message_id == hash("gameEnd") then
+		timeScore = 480 - (socket.gettime() - self.scoreTimestamp)
+		if timeScore < 0 then
+			timeScore = 0 
+		end
+		score = score + math.ceil(timeScore) + coins
+		msg.post("/interface#gui", "update_score")
+	end
+	
+	if message_id == hash("game_start") or message_id == hash("restart_game") then
+		self.scoreTimestamp = socket.gettime()
+		factory.create("/map#slimeBossFactory", vmath.vector3(140,740,0.05))
+		for slimeSpawn = 1,3 do
+			slimeSpawn = vmath.vector3(math.random(20,260), math.random(200,400), 0.05)
+			factory.create("/map#slimeFactory", slimeSpawn)
+		end
+		for slimeSpawn2 = 1,3 do
+			slimeSpawn2 = vmath.vector3(math.random(350,640), math.random(350,400), 0.05)
+			factory.create("/map#slimeFactory", slimeSpawn2)
+		end
+	elseif message_id == hash("startLevel2") then
+		for goblinMeleeSpawn = 1,3 do
+			goblinMeleeSpawn = vmath.vector3(math.random(20,220),math.random(-220,-10), 0.5)
+			factory.create("/map#goblinMeleeFactory", goblinMeleeSpawn)
+		end
+		for goblinMeleeSpawn = 1,3 do
+			goblinMeleeSpawn = vmath.vector3(math.random(450,680),math.random(-220,-10), 0.5)
+			factory.create("/map#goblinMeleeFactory", goblinMeleeSpawn)
+		end
+		for goblinMeleeSpawn = 1,3 do
+			goblinMeleeSpawn = vmath.vector3(math.random(450,680),math.random(-580,-400), 0.5)
+			factory.create("/map#goblinMeleeFactory", goblinMeleeSpawn)
+		end
+		for goblinMeleeSpawn = 1,3 do
+			goblinMeleeSpawn = vmath.vector3(math.random(20,220),math.random(-580,-400), 0.5)
+			factory.create("/map#goblinMeleeFactory", goblinMeleeSpawn)
+		end
+	elseif message_id == hash("startLevel3") then
+		for trollSpawn = 1,2 do
+			trollSpawn = vmath.vector3(math.random(860,930), math.random(360,440),0.1)
+			factory.create("/map#trollFactory", trollSpawn)
+		end
+		for trollSpawn = 1,2 do
+			trollSpawn = vmath.vector3(math.random(1040,1100), math.random(540,600),0.1)
+			factory.create("/map#trollFactory", trollSpawn)
+		end
+		for trollSpawn = 1,2 do
+			trollSpawn = vmath.vector3(math.random(1250,1300), math.random(360,440),0.1)
+			factory.create("/map#trollFactory", trollSpawn)
+		end
+		for trollSpawn = 1,2 do
+			trollSpawn = vmath.vector3(math.random(1040,1100), math.random(180,240),0.1)
+			factory.create("/map#trollFactory", trollSpawn)
+		end
+	end
+end
+
+function on_input(self, action_id, action)
+	
+end
+
+function on_reload(self)
+	
+end

@@ -1,0 +1,44 @@
+key_trigger {
+  input: KEY_W
+  action: "move_up"
+}
+key_trigger {
+  input: KEY_D
+  action: "move_right"
+}
+key_trigger {
+  input: KEY_S
+  action: "move_down"
+}
+key_trigger {
+  input: KEY_A
+  action: "move_left"
+}
+key_trigger {
+  input: KEY_UP
+  action: "attack_up"
+}
+key_trigger {
+  input: KEY_DOWN
+  action: "attack_down"
+}
+key_trigger {
+  input: KEY_RIGHT
+  action: "attack_right"
+}
+key_trigger {
+  input: KEY_LEFT
+  action: "attack_left"
+}
+key_trigger {
+  input: KEY_E
+  action: "test"
+}
+key_trigger {
+  input: KEY_SPACE
+  action: "bullet"
+}
+key_trigger {
+  input: KEY_ENTER
+  action: "restart_game"
+}

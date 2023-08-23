@@ -1,0 +1,4 @@
+sound: "/audio/soundEffects/swordSwing.wav"
+looping: 0
+group: "master"
+gain: 0.05

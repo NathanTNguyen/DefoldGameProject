@@ -1,0 +1,4 @@
+tile_set: "/main/hero/bullet.tilesource"
+default_animation: "rightLeft"
+material: "/builtins/materials/sprite.material"
+blend_mode: BLEND_MODE_ALPHA

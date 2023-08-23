@@ -1,0 +1,74 @@
+function init(self)
+	scoreText = gui.get_node("scoreText")
+	heroHealth = gui.get_node("heroHealth")
+	coinsScore = gui.get_node("coinsScore")
+	heroHealthBox = gui.get_node("heroHealthBox")
+	objective = gui.get_node("objective")
+	gameOverText = gui.get_node("gameOverText")
+	controlTutorial = gui.get_node("controlTutorial")
+	controls2 = gui.get_node("controls2")
+end
+
+function final(self)
+	
+end
+
+function update(self, dt)
+	--When the conditions for level 2 to start are met, message "level2" is sent to the player to start level 2
+	if slimeBossCount == 0 and slimeCount < 1 and slimeBossEncounter == true and canTeleport == true and level2 == false then
+		gui.set_text(objective, "Objective: Defeat All Goblins")
+		msg.post("/hero", "level2")
+	end
+	if health <= 0 or gameOver == true then
+		gui.set_text(objective, "Press Enter to Start or Retry")
+	end
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash("game_final") then
+		gui.set_text(gameOverText, "Final Score: " .. score)
+		gui.set_enabled(controlTutorial, true)
+		gui.set_enabled(controls2, true)
+	elseif message_id == hash("game_current") then
+		gui.set_text(gameOverText, " ")
+		gui.set_enabled(controlTutorial, false)
+		gui.set_enabled(controls2, false)
+	end
+	--Displays and changes objective GUI text node
+	if message_id == hash("slimeBossEncounter") then
+		gui.set_text(objective, "Objective: Defeat Slime Boss")
+	elseif slimeCount > 1 or message_id == hash("retry") then
+		gui.set_text(objective, "Objective: Defeat All Slimes")
+	elseif message_id == hash("goblinMeleeBossEncounter") then
+		gui.set_text(objective, "Objective: Defeat Goblin Boss")
+	elseif goblinMeleeCount > 1 then
+		gui.set_text(objective, "Objective: Defeat All Goblins")
+	elseif trollCount > 1 and goblinMeleeBossCount == 0 then
+		gui.set_text(objective, "Objective: Defeat All Trolls")
+	end
+		
+	--Updates score values
+	if message_id == hash("update_score") then
+		gui.set_text(scoreText, "Score: " .. score)
+	elseif message_id == hash("hero_damage") then
+		healthSize = gui.get_size(heroHealthBox)
+		healthSize.x = healthSize.x - 10
+		gui.set_size(heroHealthBox, healthSize)
+		gui.set_text(heroHealth, "Health: ")
+	elseif message_id == hash("update_health") then
+		healthSize = gui.get_size(heroHealthBox)
+		healthSize.x = 100
+		gui.set_size(heroHealthBox, healthSize)
+		gui.set_text(heroHealth, "Health: ")
+	elseif message_id == hash("update_coins") then
+		gui.set_text(coinsScore, "Coins: " .. coins)
+	end
+end
+
+function on_input(self, action_id, action)
+	
+end
+
+function on_reload(self)
+	
+end

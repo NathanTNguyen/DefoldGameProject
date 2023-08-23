@@ -1,0 +1,4 @@
+tile_set: "/main/enemy/goblinMelee.tilesource"
+default_animation: "idle"
+material: "/builtins/materials/sprite.material"
+blend_mode: BLEND_MODE_ALPHA

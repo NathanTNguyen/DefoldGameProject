@@ -1,0 +1,29 @@
+function init(self)
+
+end
+
+function final(self)
+
+end
+
+function update(self, dt)
+	--deletes object on creation
+	go.delete()
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id==hash("contact_point_response") then
+		--defines 'enemy' as the 'receiving' objects id
+		 local heroEnemy = message.other_id
+		--sends "damage" message to 'enemy'
+		msg.post(heroEnemy, "damageHero")
+	end
+end
+
+function on_input(self, action_id, action)
+
+end
+
+function on_reload(self)
+	
+end

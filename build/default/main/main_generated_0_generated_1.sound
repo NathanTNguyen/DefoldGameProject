@@ -1,0 +1,4 @@
+sound: "/audio/music/mystery.wav"
+looping: 1
+group: "music"
+gain: 0.02

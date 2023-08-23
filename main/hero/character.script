@@ -1,0 +1,224 @@
+go.property("attack_interval", 0.70)
+go.property("walk_interval", 0.25)
+go.property("is_alive", true)
+
+function init(self)
+	msg.post(".", "acquire_input_focus")
+	msg.post("#music", "play_sound")
+	canMove = false
+	local scale = vmath.vector3(1.25,1.25,1)
+	go.set_scale(scale)
+	self.vel = vmath.vector3() 
+	self.timestamp = 0
+	self.fireTimestamp = 0
+	heroDmgAmount = 10
+	playerDirection = "down"
+	health = 0
+	speed = 55
+	score = 0
+	coins = 0
+	level2 = false
+	gameOver = true
+end
+
+function final(self)
+	
+end
+
+function update(self, dt)
+	p = go.get_position()
+	p = p + self.vel * dt 
+	go.set_position(p)
+	self.vel.x = 0
+	self.vel.y = 0
+	--If 1.5 seconds have passed since last bullet shot then player can fire again
+	if (socket.gettime() - self.fireTimestamp) > 1 then
+		canFire = true
+	else
+		canFire = false
+	end
+	--After 4 seconds of increased speeds, player speed is reset to normal
+	if (socket.gettime() - self.timestamp) < 4 then
+		canTeleport = false
+	elseif (socket.gettime() - self.timestamp) > 4 then
+		canTeleport = true
+		speed = 55
+	end
+	--removes player when health is equal to or less than 0
+	if health <= 0 then
+		canMove = false
+		gameOver = true
+		go.set("/hero#character", "is_alive", false)
+		p = vmath.vector3(-517,-320,0.1)
+		go.set_position(p)
+	elseif health >= 0 and slimeCount > 0 and gameOver == true then
+		canMove = true
+		slimeBossEncounter = false
+		goblinMeleeBossEncounter = false
+		goblinMeleeBossRoom = false
+		level2 = false
+		gameOver = false
+		go.set("/hero#character", "is_alive", true)
+	end
+	if gameOver == true then
+		msg.post("/interface#gui", "game_final")
+		
+	elseif gameOver == false then
+		msg.post("/interface#gui", "game_current")
+	end
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash("gameFinish") then
+		gameOver = true
+		canMove = false
+		p = vmath.vector3(-517,-320,0.1)
+		go.set_position(p)
+		go.set("/hero#character", "is_alive", false)
+		msg.post("/interface#gui", "game_final")
+	end
+	--if slime count reaches 0 and 4 seconds since elaspses while slimeBossEncounter is false, player is teleport to boss room
+	if slimeCount == 0 and (socket.gettime() - self.timestamp) > 4 and slimeBossEncounter == false then
+		p = vmath.vector3(110,600,0.05)
+		go.set_position(p)
+		slimeBossEncounter = true
+		msg.post("/interface#gui", "slimeBossEncounter")
+	elseif goblinMeleeCount == 0 and level2 == true and (socket.gettime() - self.timestamp) > 4 and goblinMeleeBossRoom == false then
+		p = vmath.vector3(1080,-400,0.05)
+		go.set_position(p)
+		goblinMeleeBossRoom = true
+		for goblinMeleeSpawn = 1,5 do
+			goblinMeleeSpawn = vmath.vector3(math.random(1000,1200),math.random(-420,-200), 0.5)
+			factory.create("/map#goblinMeleeFactory", goblinMeleeSpawn)
+		end
+	elseif goblinMeleeBossCount == 0 and goblinMeleeBossEncounter == true and (socket.gettime() - self.timestamp) > 4 then
+		p = vmath.vector3(1080,400,0.1)
+		go.set_position(p)
+		health = 100
+		msg.post("/interface#gui", "update_health")
+		goblinMeleeBossEncounter = false
+	end
+	--if spawnSlime message is sent, spawns a slime mob in a random location within slimeBoss Room
+	if message_id == hash("spawnSlime") then
+		factory.create("/map#slimeFactory", vmath.vector3(math.random(-10,300), math.random(650,780), 0.1))
+	end
+	--When slimeBoss dies three slimes are spawned
+	if message_id == hash("slimeBossDeath") then
+		for slimeSpawn = 1,2 do
+			slimeSpawn = vmath.vector3(math.random(-10,300), math.random(550,800), 0.05)
+			factory.create("/map#slimeFactory", slimeSpawn)
+		end
+	end
+	--Detects collision with objects, prevents sprite from passing through
+	if message_id == hash("contact_point_response") then
+		go.set_position(go.get_position() + message.normal * message.distance)
+	end
+	--when damage message is received damage animation is played, health lost is displayed
+	if message_id == hash("damageHero") or message_id == hash("damage") then
+		msg.post("/hero#playerHit", "play_sound")
+		--spawns text node displaying health lost and sets its' location
+		factory.create("/hero#loseHealthFactory", vmath.vector3(p) + vmath.vector3(30,40,0))
+		health = health - slimeDmgAmount
+		msg.post(".", "play_animation", {id =hash("upDamage")} )
+		msg.post("/interface#gui", "hero_damage")
+	end
+	--If player defeats an enemy and is sent message "speed", speed is set to '65'
+	if message_id == hash("speed") then
+		speed = 65
+	elseif message_id == hash("level2") and level2 == false then
+		p = vmath.vector3(120,-180,0.5)
+		go.set_position(p)
+		level2 = true
+		health = 100
+		msg.post("/interface#gui", "update_health")
+		msg.post("/map#map1", "startLevel2")
+	end
+end
+
+function on_input(self, action_id, action)
+	--If player is dead and restart game button is pressed game is restarted
+	if health <= 0 and action_id == hash("restart_game") then
+		go.set("/hero#character", "is_alive", true)
+		health = 100
+		msg.post("/interface#gui", "update_health")
+		msg.post("/interface#gui", "retry")
+		msg.post("/map#map1", "restart_game")
+		p = vmath.vector3(115,275,0.1)
+		go.set_position(p)
+		score = 0
+		coins = 0
+		msg.post("/interface#gui", "update_score")
+		msg.post("/interface#gui", "update_coins")
+	end
+	--Determines bullet starting location dependent on direction player is facing
+	if action_id == hash("bullet") and action.pressed == true and canFire == true then
+		canFire = false
+		self.fireTimestamp = socket.gettime()
+		if playerDirection == "right" then
+			factory.create("/hero#bulletFactory", p + vmath.vector3(55,26,0))
+		elseif playerDirection == "left" then
+			factory.create("/hero#bulletFactory", p + vmath.vector3(-5,26,0))
+		elseif playerDirection == "up" then
+			factory.create("/hero#bulletFactory", p + vmath.vector3(30,60,0))
+		elseif playerDirection == "down" then
+			factory.create("/hero#bulletFactory", p + vmath.vector3(30,-10,0))
+		end
+	end	
+	--Controls player movement
+	if socket.gettime() > (self.timestamp + self.walk_interval) and canMove == true then
+		if action_id == hash("move_up") then
+			playerDirection = "up"
+			self.vel.y = speed
+			if action.pressed == true then
+				msg.post(".", "play_animation", {id = hash("up")} )
+			end
+		elseif action_id == hash("move_down") then
+			playerDirection = "down"
+			self.vel.y = -speed
+			if action.pressed == true then
+				msg.post(".", "play_animation", {id = hash("down")} )
+			end
+		elseif action_id == hash("move_right") then
+			playerDirection = "right"
+			self.vel.x = speed
+			if action.pressed == true then
+				msg.post(".", "play_animation", {id = hash("right")} )
+			end
+		elseif action_id == hash("move_left") then
+			playerDirection = "left"
+			self.vel.x = -speed
+			if action.pressed == true then
+				msg.post(".", "play_animation", {id = hash("left")} )
+			end
+		end	
+	end
+	
+	--plays attack animations only when time from previous attack is greater than attack time interval
+	if socket.gettime() > (self.timestamp + self.attack_interval) then
+		if action_id == hash("attack_right") then
+			self.timestamp = socket.gettime()
+			msg.post(".", "play_animation", {id = hash("rightAttack")} )
+			factory.create("#laserFactory", p + vmath.vector3(55,20,0))
+		elseif action_id == hash("attack_left") then
+			self.timestamp = socket.gettime()
+			msg.post(".", "play_animation", {id = hash("leftAttack")} )
+			factory.create("#laserFactory", p + vmath.vector3(-5,20,0))
+		elseif action_id == hash("attack_up") then
+			self.timestamp = socket.gettime()
+			msg.post(".", "play_animation", {id = hash("upAttack")} )
+			factory.create("#laserFactory", p + vmath.vector3(20,50,0))
+		elseif action_id == hash("attack_down") then
+			self.timestamp = socket.gettime()
+			msg.post(".", "play_animation", {id = hash("downAttack")} )
+			factory.create("#laserFactory", p + vmath.vector3(20,-10,0))
+		end
+	end
+	if action_id == hash("test") and action.pressed == true then
+		health = 0
+	end
+	
+end
+
+function on_reload(self)
+	
+end

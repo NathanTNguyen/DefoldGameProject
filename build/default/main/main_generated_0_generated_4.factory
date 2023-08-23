@@ -1,0 +1,2 @@
+prototype: "/main/hero/laserHero.go"
+load_dynamically: false

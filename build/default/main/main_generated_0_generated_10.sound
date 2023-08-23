@@ -1,0 +1,4 @@
+sound: "/audio/soundEffects/slimeDeath.wav"
+looping: 0
+group: "hitEffect"
+gain: 1.0

@@ -1,0 +1,38 @@
+size {
+  x: 128.0
+  y: 32.0
+  z: 0.0
+  w: 0.0
+}
+scale {
+  x: 0.572
+  y: 0.572
+  z: 0.572
+  w: 0.0
+}
+color {
+  x: 0.9019608
+  y: 0.3019608
+  z: 0.3019608
+  w: 1.0
+}
+outline {
+  x: 0.6
+  y: 0.0
+  z: 0.0
+  w: 1.0
+}
+shadow {
+  x: 0.4
+  y: 0.4
+  z: 0.4
+  w: 1.0
+}
+leading: 1.0
+tracking: 0.0
+pivot: PIVOT_CENTER
+blend_mode: BLEND_MODE_ALPHA
+line_break: false
+text: "heroLoseHealth"
+font: "/builtins/fonts/system_font.font"
+material: "/builtins/fonts/label.material"

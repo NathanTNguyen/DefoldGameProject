@@ -1,0 +1,27 @@
+function init(self)
+	self.timestampHealth = socket.gettime()
+	label.set_text("#enemyLoseHealth", "-".. heroDmgAmount)
+end
+
+function final(self)
+	
+end
+
+function update(self, dt)
+	-- 1 second after the character loses health, text disappears
+	if (socket.gettime() - self.timestampHealth) > 0.65 then
+		go.delete()
+	end
+end
+
+function on_message(self, message_id, message, sender)
+
+end
+
+function on_input(self, action_id, action)
+
+end
+
+function on_reload(self)
+	
+end
