@@ -1,6 +1,6 @@
 # Defold Game Project - Dungeon Escape
 
-A simple dungeon crawler game developed using Defold game engine and Lua. I created this game for my major project for Software Design & Development in year 12.
+A simple dungeon crawler game developed using Defold game engine and Lua for macOS. I created this game for my major project for Software Design & Development in year 12.
 
 # Gameplay Demonstration
 A demonstration of the gameplay can be viewed here: https://www.youtube.com/watch?v=CKmX_XqqAU4&ab_channel=NathanNguyen
